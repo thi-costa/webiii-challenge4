@@ -1,5 +1,6 @@
 package com.example.mercado.controller;
 
+import com.example.mercado.exception.MercadoNotFoundException;
 import com.example.mercado.model.Mercado;
 import com.example.mercado.service.MercadoService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +33,15 @@ public class MercadoController {
             @RequestBody Mercado mercado,
             @PathVariable(value = "id") String id) {
         return service.atualizar(mercado, id)
-                .map(atual -> ResponseEntity.ok().body(mercado));
+                .map(atual -> ResponseEntity.ok().body(mercado))
+                .switchIfEmpty(Mono.error(new MercadoNotFoundException("Mercado not found with id: " + id)));
     }
     @GetMapping("/{id}")
     public Mono<ResponseEntity<Mercado>> buscarPorId(
             @PathVariable(value = "id") String id) {
-        return service.buscarPorId(id)
-                .map(mercado -> ResponseEntity.ok().body(mercado))
-                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+        Mono<ResponseEntity<Mercado>> mercado =  service.buscarPorId(id)
+                .map(m -> ResponseEntity.ok().body(m));
+        return mercado.switchIfEmpty(Mono.error(new MercadoNotFoundException("Mercado not found with id: " + id)));
     }
     @GetMapping("/nomes")
     public Mono<ResponseEntity<Flux<Mercado>>> buscarPorNomes(
@@ -61,8 +63,13 @@ public class MercadoController {
     public Mono<ResponseEntity<Void>> remover(@PathVariable String id){
         return service.remover(id)
                 .then(Mono.just(ResponseEntity.ok().<Void>build()))
+                .switchIfEmpty(Mono.error(new MercadoNotFoundException("Mercado not found with id: " + id)))
                 .onErrorResume(
                         e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()));
     }
 
+    @ExceptionHandler(MercadoNotFoundException.class)
+    public Mono<ResponseEntity<String>> handleDataNotFoundException(MercadoNotFoundException ex) {
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()));
+    }
 }
