@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tech.ada.pagamento.exception.SaldoInsuficienteException;
 import tech.ada.pagamento.model.Comprovante;
 import tech.ada.pagamento.model.Pagamento;
 import tech.ada.pagamento.model.Usuario;
@@ -25,7 +26,7 @@ public class PagamentoController {
 
     @PostMapping
     public Mono<Comprovante> pagar(@RequestBody Pagamento pagamento) {
-        return service.pagar(pagamento);
+        return service.pagar(pagamento).onErrorResume(e -> Mono.error(new SaldoInsuficienteException()));
     }
 
 }

@@ -2,6 +2,7 @@ package tech.ada.user.service;
 
 import org.springframework.http.ResponseEntity;
 import tech.ada.user.exception.UserNotFoundException;
+import tech.ada.user.model.Comprovante;
 import tech.ada.user.model.User;
 import tech.ada.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,22 @@ public class UserService {
             .flatMap( atual -> repository.save(atual.update(user)));
     }
 
+    public Mono<Comprovante> atualizar(Comprovante comprovante) {
+        Flux<User> usuarios = this.buscarPorUsernames(comprovante.getUsernamesArray());
+        return usuarios.zipWith(usuarios.skip(1))
+                .map(tupla -> {
+                    User pagador = tupla.getT1();
+                    User recebedor = tupla.getT2();
+
+                    pagador.pagar(recebedor, comprovante);
+                    return List.of(pagador, recebedor);
+                })
+                .flatMap(lista -> {
+                    return repository.saveAll(lista);
+                })
+                .then(Mono.just(comprovante));
+    }
+
     public Mono<?> remover(String id) {
         return repository.findById(id)
             .switchIfEmpty(Mono.error(new RuntimeException("user not found id " + id)))
@@ -48,5 +65,6 @@ public class UserService {
     public Flux<User> buscarPorUsernames(String ... users) {
         return repository.findByUsernameIn(Arrays.asList(users));
     }
+
 
 }

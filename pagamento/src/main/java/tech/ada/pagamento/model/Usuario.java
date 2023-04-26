@@ -17,5 +17,6 @@ public class Usuario {
     private List<String> roles;
     private Long birth;
     private LocalDate since;
+    private Double balanco;
 
 }

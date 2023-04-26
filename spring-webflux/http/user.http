@@ -1,8 +1,10 @@
-### salvar
+### salvar user 1
 POST http://localhost:8080/users
 Content-Type: application/json
 
-< ./post-fred-mercury.json
+#< ./post-fred-mercury.json
+#< ./post-leo-santana.json
+#< ./post-michael-jordan.json
 
 ### listar
 GET http://localhost:8080/users
@@ -17,7 +19,7 @@ Content-Type: application/json
 < ./post-fred-mercury.json
 
 ### remover
-DELETE http://localhost:8080/users/64322c04fad4110e7447ca6e
+DELETE http://localhost:8080/users/644972db2842d36a872cfe46
 
 ### listar
 GET http://localhost:8080/users/usernames?users=fredm,leos

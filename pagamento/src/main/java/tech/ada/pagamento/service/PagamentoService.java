@@ -29,10 +29,15 @@ public class PagamentoService {
                 .retrieve().bodyToFlux(Usuario.class);
 
         Mono<Comprovante> comprovanteMono = Flux.zip(usuarios, usuarios.skip(1))
-                .map(tupla -> new Transacao(
-                        tupla.getT1().getUsername(),
-                        tupla.getT2().getUsername(),
-                        pagamento.getValor()))
+                .map(tupla -> {
+                    boolean condicaoPagamento = tupla.getT1().getBalanco() < pagamento.getValor();
+                    return condicaoPagamento ?
+                            null
+                     : new Transacao(
+                            tupla.getT1().getUsername(),
+                            tupla.getT2().getUsername(),
+                            pagamento.getValor());
+                })
                 .last()
                 .flatMap(tx -> transacaoRepository.save(tx))
                 .map(tx -> new Comprovante(

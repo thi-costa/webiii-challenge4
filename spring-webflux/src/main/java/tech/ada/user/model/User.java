@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Document
 public class User {
@@ -23,6 +22,18 @@ public class User {
     private List<String> roles;
     private Long birth;
     private LocalDate since;
+    private Double balanco;
+
+    public User pagar(User user, Comprovante comprovante){
+        this.balanco -= comprovante.getValor();
+        user.balanco += comprovante.getValor();
+        comprovante.setAck_usuario(true);
+        return this;
+    }
+
+    public User(){
+        this.balanco = 0.0d;
+    }
 
     public User update(User usuario) {
         // id, username and since not permited changing
@@ -32,5 +43,7 @@ public class User {
         this.setSince(usuario.since);
         return this;
     }
+
+
 
 }
