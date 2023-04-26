@@ -1,13 +1,13 @@
 package com.example.mercado.service;
 
-import com.example.mercado.model.Mercado;
-import com.example.mercado.repository.MercadoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.example.mercado.model.Mercado;
+import com.example.mercado.repository.MercadoRepository;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Service
 public class MercadoService {
@@ -37,5 +37,17 @@ public class MercadoService {
     }
     public Flux<Mercado> buscarPorNomes(String nomeMercado) {
         return repository.findMercadosByNome(nomeMercado);
+    }
+    public Flux<Object> cotacao(String nomeMoeda){
+        WebClient webClient = WebClient.create("https://economia.awesomeapi.com.br");
+
+        Flux<Object> cotacao = webClient.get()
+            .uri(uriBuilder -> uriBuilder
+                    .path("/" + nomeMoeda + "/")
+                    .build())
+                    .retrieve().bodyToFlux(Object.class);
+        
+        return cotacao;
+
     }
 }

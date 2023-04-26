@@ -72,4 +72,10 @@ public class MercadoController {
     public Mono<ResponseEntity<String>> handleDataNotFoundException(MercadoNotFoundException ex) {
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()));
     }
+
+    @GetMapping("/moeda")
+    public Mono<ResponseEntity<Flux<Object>>> consultarAPICotacao(@RequestParam("moeda") String nomeMoeda){
+        return service.cotacao(nomeMoeda).collectList()
+            .map(m -> ResponseEntity.ok().body(Flux.fromIterable(m)));
+    }
 }

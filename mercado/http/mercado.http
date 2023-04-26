@@ -26,3 +26,12 @@ Content-Type: application/json
 ### Deletar por id
 DELETE http://localhost:8060/mercados/643ddb5cf4f6631b1a458629
 Content-Type: application/json
+
+### Consultar moedas
+### Dólar
+GET http://localhost:8060/mercados/moeda?moeda=USD
+Content-Type: application/json
+
+### Euro
+GET http://localhost:8060/mercados/moeda?moeda=EUR
+Content-Type: application/json
